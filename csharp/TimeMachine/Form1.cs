@@ -24,7 +24,7 @@ namespace TimeMachine
 			_connection = loginService.Login();
 			_storageConnection = new StorageConnection(_connection.Storage.ConnectionParameters);
 
-			Text += $@" - {_connection.ConnectionUri.Host}";
+			Text = string.Format(@"{0} - {1}", Text, _connection.ConnectionUri.Host);
 			_btnDownloadLatest.Enabled = false;
 			_btnDownloadSelected.Enabled = false;
 		}
@@ -91,7 +91,12 @@ namespace TimeMachine
 					return;
 				}
 				_revisionList.Items.Clear();
-				var path= _treeView.SelectedNode?.Tag as UnifiedPath;
+				var node = _treeView.SelectedNode;
+				if (node == null)
+				{
+					return;
+				}
+				var path = node.Tag as UnifiedPath;
 				if (path == null)
 				{
 					return;
@@ -157,7 +162,7 @@ namespace TimeMachine
 					.Where(r => r.Created.HasValue && (upToDateTime == null || r.Created.Value <= upToDateTime.Value))
 					.OrderByDescending(r => r.Created.Value)
 					.FirstOrDefault();
-				if (revision?.Created != null)
+				if (revision != null)
 				{
 					Directory.CreateDirectory(target);
 					repository.EndTransfer(repository.BeginDownloadVersionTransfer(revision.RevisionPath, target, true, null));
@@ -179,7 +184,12 @@ namespace TimeMachine
 			{
 				return;
 			}
-			var path = _treeView.SelectedNode?.Tag as UnifiedPath;
+			var node = _treeView.SelectedNode;
+			if (node == null)
+			{
+				return;
+			}
+			var path = node.Tag as UnifiedPath;
 			if (path == null)
 			{
 				return;
@@ -196,7 +206,12 @@ namespace TimeMachine
 
 		private void DownloadLatest(object sender, EventArgs e)
 		{
-			var path = _treeView.SelectedNode?.Tag as UnifiedPath;
+			var node = _treeView.SelectedNode;
+			if (node == null)
+			{
+				return;
+			}
+			var path = node.Tag as UnifiedPath;
 			if (path == null)
 			{
 				return;
@@ -214,9 +229,9 @@ namespace TimeMachine
 
 	class Change
 	{
-		public DateTime Time { get; }
-		public UnifiedPath Path { get; }
-		public string Revision { get; }
+		public DateTime Time { get; private set; }
+		public UnifiedPath Path { get; private set; }
+		public string Revision { get; private set; }
 
 		public Change(FileRevisionInfo revisionInfo)
 		{
