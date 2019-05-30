@@ -1,4 +1,3 @@
-# Tools
-Tools for OpenLab
+# Tools for OpenLab
 
 [TimeMachine](csharp/TimeMachine)
